@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Squarespace Gallery Embed Demo</title>
+    <link rel="stylesheet" href="/gallery-embed.css" />
+    <style>
+      body {
+        margin: 0;
+        padding: 24px;
+        font-family: "Avenir Next", "Segoe UI", sans-serif;
+        background: #ece8de;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Squarespace Gallery (Demo)</h1>
+    <p>Set <code>data-index-url</code> to your Worker URL serving <code>/index.json</code>.</p>
+
+    <div
+      data-vs-gallery
+      data-index-url="https://REPLACE-WITH-YOUR-WORKER.workers.dev/index.json"
+    ></div>
+
+    <script src="/gallery-embed.js" defer></script>
+  </body>
+</html>

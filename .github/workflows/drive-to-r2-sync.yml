@@ -1,0 +1,37 @@
+name: Drive to R2 Sync
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/30 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: drive-to-r2-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install rclone
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rclone
+
+      - name: Sync Drive to R2
+        env:
+          RCLONE_DRIVE_SERVICE_ACCOUNT_JSON_B64: ${{ secrets.RCLONE_DRIVE_SERVICE_ACCOUNT_JSON_B64 }}
+          DRIVE_FOLDER_ID: ${{ secrets.DRIVE_FOLDER_ID }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          REBUILD_URL: ${{ secrets.REBUILD_URL }}
+          REBUILD_TOKEN: ${{ secrets.REBUILD_TOKEN }}
+        run: ./scripts/sync-drive-to-r2.sh

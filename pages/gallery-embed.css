@@ -1,0 +1,240 @@
+:root {
+  --vs-bg: #f6f3ec;
+  --vs-panel: #ffffff;
+  --vs-text: #1e1f24;
+  --vs-muted: #6c7078;
+  --vs-border: #dfd6c5;
+  --vs-accent: #1f5f8b;
+  --vs-shadow: 0 10px 24px rgba(13, 17, 23, 0.08);
+}
+
+[data-vs-gallery] {
+  background: radial-gradient(circle at top right, #fdf9f2, var(--vs-bg));
+  border: 1px solid var(--vs-border);
+  border-radius: 16px;
+  color: var(--vs-text);
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  padding: 18px;
+}
+
+.vs-gallery-shell {
+  display: grid;
+  gap: 30px;
+}
+
+.vs-status {
+  color: var(--vs-muted);
+  font-size: 0.95rem;
+}
+
+.vs-year {
+  display: grid;
+  gap: 14px;
+}
+
+.vs-year-title {
+  border-bottom: 2px solid var(--vs-border);
+  font-size: 1.35rem;
+  margin: 0;
+  padding-bottom: 8px;
+}
+
+.vs-rail {
+  align-items: stretch;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: auto 1fr auto;
+}
+
+.vs-rail-button {
+  background: var(--vs-panel);
+  border: 1px solid var(--vs-border);
+  border-radius: 10px;
+  color: var(--vs-text);
+  cursor: pointer;
+  font-size: 1rem;
+  min-width: 38px;
+}
+
+.vs-rail-track {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+}
+
+.vs-rail-track::-webkit-scrollbar {
+  height: 7px;
+}
+
+.vs-rail-track::-webkit-scrollbar-thumb {
+  background: #c4c9d3;
+  border-radius: 8px;
+}
+
+.vs-rail-item {
+  background: var(--vs-panel);
+  border: 1px solid var(--vs-border);
+  border-radius: 12px;
+  cursor: pointer;
+  flex: 0 0 160px;
+  padding: 6px;
+  scroll-snap-align: start;
+  text-align: left;
+}
+
+.vs-rail-thumb {
+  border-radius: 8px;
+  display: block;
+  height: 90px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.vs-rail-label {
+  font-size: 0.82rem;
+  margin-top: 6px;
+}
+
+.vs-album-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.vs-album-card {
+  background: var(--vs-panel);
+  border: 1px solid var(--vs-border);
+  border-radius: 12px;
+  box-shadow: var(--vs-shadow);
+  cursor: pointer;
+  padding: 8px;
+  text-align: left;
+}
+
+.vs-album-cover {
+  border-radius: 8px;
+  display: block;
+  height: 130px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.vs-album-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.vs-album-count {
+  color: var(--vs-muted);
+  font-size: 0.8rem;
+}
+
+.vs-lightbox {
+  align-items: center;
+  background: rgba(9, 12, 18, 0.82);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 20px;
+  position: fixed;
+  z-index: 99999;
+}
+
+.vs-lightbox.is-hidden {
+  display: none;
+}
+
+.vs-lightbox-panel {
+  background: #0f1116;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  color: #f4f6fb;
+  max-width: min(1100px, 96vw);
+  padding: 12px;
+  width: 100%;
+}
+
+.vs-lightbox-close {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  float: right;
+  padding: 6px 10px;
+}
+
+.vs-lightbox-media {
+  align-items: center;
+  clear: both;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: auto 1fr auto;
+  margin-top: 10px;
+}
+
+.vs-lightbox-image {
+  border-radius: 10px;
+  display: block;
+  max-height: 78vh;
+  object-fit: contain;
+  width: 100%;
+}
+
+.vs-lightbox-nav {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  min-height: 48px;
+  min-width: 56px;
+}
+
+.vs-lightbox-meta {
+  align-items: baseline;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.vs-lightbox-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.vs-lightbox-counter {
+  color: #d0d6e2;
+  font-size: 0.84rem;
+}
+
+.vs-no-scroll {
+  overflow: hidden;
+}
+
+@media (max-width: 760px) {
+  [data-vs-gallery] {
+    border-radius: 10px;
+    padding: 12px;
+  }
+
+  .vs-rail {
+    grid-template-columns: 1fr;
+  }
+
+  .vs-rail-button {
+    display: none;
+  }
+
+  .vs-lightbox-media {
+    grid-template-columns: 1fr;
+  }
+
+  .vs-lightbox-nav {
+    min-height: 40px;
+    min-width: 100px;
+  }
+}

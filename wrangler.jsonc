@@ -1,0 +1,30 @@
+{
+  "name": "gallery-index-worker",
+  "main": "src/index.js",
+  "compatibility_date": "2026-02-27",
+  "workers_dev": true,
+  "triggers": {
+    "crons": ["0 */6 * * *"]
+  },
+  "vars": {
+    "PUBLIC_BASE_URL": "https://<your-public-r2-domain>",
+    "BUILD_COOLDOWN_SECONDS": "90"
+  },
+  "r2_buckets": [
+    {
+      "binding": "PHOTOS_BUCKET",
+      "bucket_name": "<your-r2-bucket-name>"
+    }
+  ],
+  "queues": {
+    "consumers": [
+      {
+        "queue": "r2-photo-events",
+        "max_batch_size": 100,
+        "max_batch_timeout": 10,
+        "max_retries": 3,
+        "max_concurrency": 1
+      }
+    ]
+  }
+}
