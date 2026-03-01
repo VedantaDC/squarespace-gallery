@@ -57,7 +57,6 @@ rclone sync "drive:" "r2:${R2_BUCKET}" \
   --fast-list \
   --transfers 8 \
   --checkers 16 \
-  --delete-empty-src-dirs \
   --exclude "**/.DS_Store" \
   --exclude "**/Thumbs.db"
 
