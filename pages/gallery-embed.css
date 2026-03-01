@@ -32,7 +32,7 @@
 }
 
 .vs-year-title {
-  font-size: clamp(2rem, 3.7vw, 3.4rem);
+  font-size: clamp(1.6rem, 2.96vw, 2.72rem);
   font-weight: 700;
   letter-spacing: 0.02em;
   margin: 0;
@@ -40,23 +40,21 @@
 }
 
 .vs-rail {
-  align-items: center;
   display: grid;
   gap: 12px;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 1fr;
 }
 
 .vs-rail-button {
-  align-self: center;
   background: var(--vs-pill-bg);
   border: 1px solid #b8cdf5;
   border-radius: 999px;
   color: #2064d8;
   cursor: pointer;
-  font-size: 2rem;
-  height: 56px;
+  font-size: 1.8rem;
+  height: 52px;
   line-height: 1;
-  width: 56px;
+  width: 52px;
 }
 
 .vs-rail-button:hover {
@@ -88,7 +86,8 @@
   border-radius: 18px;
   color: var(--vs-text);
   cursor: pointer;
-  flex: 0 0 clamp(250px, 22vw, 380px);
+  flex: 0 0 calc((100% - 54px) / 4);
+  min-width: 220px;
   padding: 14px;
   scroll-snap-align: start;
   text-align: left;
@@ -113,7 +112,13 @@
   grid-template-columns: 1fr;
 }
 
-.vs-rail.is-static .vs-rail-button {
+.vs-rail-controls {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+}
+
+.vs-rail.is-static .vs-rail-controls {
   display: none;
 }
 
@@ -272,7 +277,8 @@
   }
 
   .vs-rail-item {
-    flex-basis: 270px;
+    flex: 0 0 calc((100% - 18px) / 2);
+    min-width: 180px;
   }
 
   .vs-photo-grid {

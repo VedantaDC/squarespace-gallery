@@ -13,7 +13,53 @@
     return raw.trim();
   }
 
-  function createLightbox(root) {
+  function readRouteFromUrl() {
+    const hash = window.location.hash.startsWith("#")
+      ? window.location.hash.slice(1)
+      : window.location.hash;
+    const params = new URLSearchParams(hash);
+
+    const year = params.get("year");
+    const album = params.get("album");
+    const photoRaw = params.get("photo");
+
+    let photo = null;
+    if (photoRaw) {
+      const parsed = Number.parseInt(photoRaw, 10);
+      if (Number.isFinite(parsed) && parsed > 0) {
+        photo = parsed;
+      }
+    }
+
+    return {
+      year,
+      album,
+      photo,
+    };
+  }
+
+  function writeRouteToUrl(route, options) {
+    const replace = Boolean(options && options.replace);
+    const params = new URLSearchParams();
+
+    if (route && route.year) params.set("year", route.year);
+    if (route && route.album) params.set("album", route.album);
+    if (route && Number.isFinite(route.photo) && route.photo > 0) {
+      params.set("photo", String(route.photo));
+    }
+
+    const nextHash = params.toString() ? `#${params.toString()}` : "";
+    if (nextHash === window.location.hash) return;
+
+    const nextUrl = `${window.location.pathname}${window.location.search}${nextHash}`;
+    if (replace) {
+      window.history.replaceState({}, "", nextUrl);
+    } else {
+      window.history.pushState({}, "", nextUrl);
+    }
+  }
+
+  function createLightbox(root, hooks) {
     const overlay = el("div", "vs-lightbox is-hidden");
     overlay.setAttribute("role", "dialog");
     overlay.setAttribute("aria-modal", "true");
@@ -51,6 +97,13 @@
     let currentAlbum = null;
     let index = 0;
 
+    function notifyIndex() {
+      if (!currentAlbum) return;
+      if (hooks && typeof hooks.onIndexChange === "function") {
+        hooks.onIndexChange(currentAlbum, index);
+      }
+    }
+
     function render() {
       if (!currentAlbum || !currentAlbum.images.length) return;
       const active = currentAlbum.images[index];
@@ -58,6 +111,7 @@
       image.alt = `${currentAlbum.name} - ${active.name}`;
       title.textContent = `${currentAlbum.year} / ${currentAlbum.name}`;
       counter.textContent = `${index + 1} of ${currentAlbum.images.length}`;
+      notifyIndex();
     }
 
     function open(album, startIndex) {
@@ -71,9 +125,14 @@
     }
 
     function close() {
+      const closingAlbum = currentAlbum;
       overlay.classList.add("is-hidden");
       document.body.classList.remove("vs-no-scroll");
       image.src = "";
+      if (hooks && typeof hooks.onClose === "function") {
+        hooks.onClose(closingAlbum);
+      }
+      currentAlbum = null;
     }
 
     function move(step) {
@@ -115,6 +174,7 @@
     right.setAttribute("aria-label", `Scroll ${yearData.year} albums right`);
 
     const track = el("div", "vs-rail-track");
+    const controls = el("div", "vs-rail-controls");
 
     for (const album of yearData.albums) {
       const card = el("button", "vs-rail-item");
@@ -132,7 +192,7 @@
       track.appendChild(card);
 
       card.addEventListener("click", () => {
-        openAlbum(yearData.year, album.name);
+        openAlbum(yearData.year, album.name, { pushUrl: true, scroll: true });
       });
 
       thumb.addEventListener("load", () => {
@@ -158,9 +218,10 @@
     const onResize = () => updateRailControls();
     window.addEventListener("resize", onResize, { passive: true });
 
-    rail.appendChild(left);
     rail.appendChild(track);
-    rail.appendChild(right);
+    controls.appendChild(left);
+    controls.appendChild(right);
+    rail.appendChild(controls);
     section.appendChild(rail);
 
     window.requestAnimationFrame(updateRailControls);
@@ -173,14 +234,16 @@
     };
   }
 
-  function createAlbumView(yearData, albumIndex, backToYears, openAlbum, lightbox) {
+  function createAlbumView(yearData, albumIndex, controls, lightbox) {
     const album = yearData.albums[albumIndex];
 
     const view = el("section", "vs-album-view");
 
     const backButton = el("button", "vs-pill-button vs-back-button", "← Back to years");
     backButton.type = "button";
-    backButton.addEventListener("click", backToYears);
+    backButton.addEventListener("click", () => {
+      controls.backToYears({ pushUrl: true, scroll: true });
+    });
     view.appendChild(backButton);
 
     const heading = el("h2", "vs-album-title", `${yearData.year} — ${album.name}`);
@@ -219,7 +282,10 @@
 
     if (hasPrev) {
       prevButton.addEventListener("click", () => {
-        openAlbum(yearData.year, yearData.albums[albumIndex - 1].name);
+        controls.openAlbum(yearData.year, yearData.albums[albumIndex - 1].name, {
+          pushUrl: true,
+          scroll: true,
+        });
       });
     } else {
       prevButton.classList.add("is-hidden");
@@ -227,7 +293,10 @@
 
     if (hasNext) {
       nextButton.addEventListener("click", () => {
-        openAlbum(yearData.year, yearData.albums[albumIndex + 1].name);
+        controls.openAlbum(yearData.year, yearData.albums[albumIndex + 1].name, {
+          pushUrl: true,
+          scroll: true,
+        });
       });
     } else {
       nextButton.classList.add("is-hidden");
@@ -268,36 +337,41 @@
 
     const shell = el("div", "vs-gallery-shell");
     const overlayHost = el("div", "vs-overlay-host");
-    const lightbox = createLightbox(overlayHost);
+
+    let viewState = { view: "years", yearIndex: -1, albumIndex: -1 };
+    let cleanupFns = [];
+
+    const lightbox = createLightbox(overlayHost, {
+      onIndexChange(album, index) {
+        if (!album) return;
+        writeRouteToUrl(
+          {
+            year: album.year,
+            album: album.name,
+            photo: index + 1,
+          },
+          { replace: true },
+        );
+      },
+      onClose(album) {
+        if (!album) return;
+        writeRouteToUrl(
+          {
+            year: album.year,
+            album: album.name,
+          },
+          { replace: true },
+        );
+      },
+    });
 
     container.appendChild(shell);
     container.appendChild(overlayHost);
 
-    let cleanupFns = [];
-    let viewState = { view: "years", yearIndex: -1, albumIndex: -1 };
-
     function clearView() {
-      for (const dispose of cleanupFns) dispose();
+      for (const cleanup of cleanupFns) cleanup();
       cleanupFns = [];
       shell.innerHTML = "";
-    }
-
-    function openAlbum(year, albumName) {
-      const yearIndex = years.findIndex((entry) => entry.year === year);
-      if (yearIndex === -1) return;
-
-      const albumIndex = years[yearIndex].albums.findIndex((entry) => entry.name === albumName);
-      if (albumIndex === -1) return;
-
-      viewState = { view: "album", yearIndex, albumIndex };
-      render();
-      container.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-
-    function showYears() {
-      viewState = { view: "years", yearIndex: -1, albumIndex: -1 };
-      render();
-      container.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     function render() {
@@ -309,7 +383,15 @@
 
         if (yearData && albumData) {
           shell.appendChild(
-            createAlbumView(yearData, viewState.albumIndex, showYears, openAlbum, lightbox),
+            createAlbumView(
+              yearData,
+              viewState.albumIndex,
+              {
+                backToYears: showYears,
+                openAlbum,
+              },
+              lightbox,
+            ),
           );
           return;
         }
@@ -317,14 +399,82 @@
         viewState = { view: "years", yearIndex: -1, albumIndex: -1 };
       }
 
-      for (const year of years) {
-        const { section, cleanup } = createYearSection(year, openAlbum);
+      for (const yearData of years) {
+        const { section, cleanup } = createYearSection(yearData, openAlbum);
         shell.appendChild(section);
         cleanupFns.push(cleanup);
       }
     }
 
-    render();
+    function openAlbum(year, albumName, options) {
+      const yearIndex = years.findIndex((entry) => entry.year === year);
+      if (yearIndex === -1) return;
+
+      const albumIndex = years[yearIndex].albums.findIndex((entry) => entry.name === albumName);
+      if (albumIndex === -1) return;
+
+      viewState = { view: "album", yearIndex, albumIndex };
+      render();
+
+      const pushUrl = Boolean(options && options.pushUrl);
+      const replaceUrl = Boolean(options && options.replaceUrl);
+      if (pushUrl || replaceUrl) {
+        writeRouteToUrl(
+          {
+            year,
+            album: albumName,
+          },
+          { replace: replaceUrl },
+        );
+      }
+
+      if (!options || options.scroll !== false) {
+        container.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      if (options && Number.isFinite(options.photoIndex) && options.photoIndex >= 0) {
+        const albumData = years[yearIndex].albums[albumIndex];
+        const maxIndex = Math.max(0, albumData.images.length - 1);
+        const imageIndex = Math.min(options.photoIndex, maxIndex);
+        lightbox.open({ ...albumData, year }, imageIndex);
+      }
+    }
+
+    function showYears(options) {
+      viewState = { view: "years", yearIndex: -1, albumIndex: -1 };
+      render();
+
+      const pushUrl = Boolean(options && options.pushUrl);
+      const replaceUrl = Boolean(options && options.replaceUrl);
+      if (pushUrl || replaceUrl) {
+        writeRouteToUrl({}, { replace: replaceUrl });
+      }
+
+      if (!options || options.scroll !== false) {
+        container.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
+    function applyRouteFromUrl() {
+      const route = readRouteFromUrl();
+
+      if (route.year && route.album) {
+        const zeroBasedPhoto = Number.isFinite(route.photo) ? route.photo - 1 : undefined;
+        openAlbum(route.year, route.album, {
+          replaceUrl: true,
+          scroll: false,
+          photoIndex: zeroBasedPhoto,
+        });
+        return;
+      }
+
+      showYears({ replaceUrl: true, scroll: false });
+    }
+
+    window.addEventListener("popstate", applyRouteFromUrl);
+    window.addEventListener("hashchange", applyRouteFromUrl);
+
+    applyRouteFromUrl();
   }
 
   function bootstrap() {
