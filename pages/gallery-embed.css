@@ -83,6 +83,7 @@
 .vs-rail-item {
   background: var(--vs-card-bg);
   border: 1px solid var(--vs-line);
+  box-sizing: border-box;
   border-radius: 18px;
   color: var(--vs-text);
   cursor: pointer;
@@ -272,10 +273,6 @@
     grid-template-columns: 1fr;
   }
 
-  .vs-rail-button {
-    display: none;
-  }
-
   .vs-rail-item {
     flex: 0 0 calc((100% - 18px) / 2);
     min-width: 180px;
@@ -296,6 +293,21 @@
 }
 
 @media (max-width: 640px) {
+  .vs-rail-track {
+    gap: 0;
+  }
+
+  .vs-rail-item {
+    flex: 0 0 100%;
+    min-width: 0;
+  }
+
+  .vs-rail-button {
+    font-size: 1.6rem;
+    height: 46px;
+    width: 46px;
+  }
+
   .vs-album-nav {
     gap: 10px;
   }
