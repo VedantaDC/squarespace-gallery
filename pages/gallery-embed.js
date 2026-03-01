@@ -13,10 +13,6 @@
     return raw.trim();
   }
 
-  function findAlbumAnchor(yearSection, albumName) {
-    return yearSection.querySelector(`[data-album-name="${CSS.escape(albumName)}"]`);
-  }
-
   function createLightbox(root) {
     const overlay = el("div", "vs-lightbox is-hidden");
     overlay.setAttribute("role", "dialog");
@@ -127,18 +123,18 @@
       thumb.src = album.coverUrl;
       thumb.alt = album.name;
 
+      const meta = el("div", "vs-rail-meta");
       const label = el("div", "vs-rail-label", album.name);
+      const count = el("div", "vs-rail-count", `${album.images.length} photos`);
 
       button.appendChild(thumb);
-      button.appendChild(label);
+      meta.appendChild(label);
+      meta.appendChild(count);
+      button.appendChild(meta);
       track.appendChild(button);
 
       button.addEventListener("click", () => {
-        const anchor = findAlbumAnchor(section, album.name);
-        if (anchor) {
-          anchor.scrollIntoView({ behavior: "smooth", block: "center" });
-          anchor.focus({ preventScroll: true });
-        }
+        lightbox.open({ ...album, year: yearData.year });
       });
 
       thumb.addEventListener("load", () => {
@@ -168,33 +164,6 @@
 
     window.requestAnimationFrame(updateRailControls);
     window.addEventListener("resize", updateRailControls, { passive: true });
-
-    const grid = el("div", "vs-album-grid");
-
-    for (const album of yearData.albums) {
-      const card = el("button", "vs-album-card");
-      card.type = "button";
-      card.dataset.albumName = album.name;
-      card.setAttribute("aria-label", `Open album ${album.name}`);
-
-      const cover = el("img", "vs-album-cover");
-      cover.src = album.coverUrl;
-      cover.alt = album.name;
-
-      const name = el("div", "vs-album-name", album.name);
-      const count = el("div", "vs-album-count", `${album.images.length} photos`);
-
-      card.appendChild(cover);
-      card.appendChild(name);
-      card.appendChild(count);
-      grid.appendChild(card);
-
-      card.addEventListener("click", () => {
-        lightbox.open({ ...album, year: yearData.year });
-      });
-    }
-
-    section.appendChild(grid);
     return section;
   }
 
