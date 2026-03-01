@@ -140,6 +140,10 @@
           anchor.focus({ preventScroll: true });
         }
       });
+
+      thumb.addEventListener("load", () => {
+        window.requestAnimationFrame(updateRailControls);
+      });
     }
 
     left.addEventListener("click", () => {
@@ -150,10 +154,20 @@
       track.scrollBy({ left: 360, behavior: "smooth" });
     });
 
+    function updateRailControls() {
+      const canScroll = track.scrollWidth - track.clientWidth > 4;
+      rail.classList.toggle("is-static", !canScroll);
+      left.disabled = !canScroll;
+      right.disabled = !canScroll;
+    }
+
     rail.appendChild(left);
     rail.appendChild(track);
     rail.appendChild(right);
     section.appendChild(rail);
+
+    window.requestAnimationFrame(updateRailControls);
+    window.addEventListener("resize", updateRailControls, { passive: true });
 
     const grid = el("div", "vs-album-grid");
 
