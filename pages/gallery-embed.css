@@ -1,69 +1,81 @@
 :root {
-  --vs-bg: #f6f3ec;
-  --vs-panel: #ffffff;
-  --vs-text: #1e1f24;
-  --vs-muted: #6c7078;
-  --vs-border: #dfd6c5;
-  --vs-accent: #1f5f8b;
-  --vs-shadow: 0 10px 24px rgba(13, 17, 23, 0.08);
+  --vs-text: #133257;
+  --vs-muted: #5e789b;
+  --vs-line: #c8d7ef;
+  --vs-card-bg: #f8fbff;
+  --vs-pill-bg: #e9f1ff;
+  --vs-pill-bg-hover: #dce9ff;
+  --vs-lightbox-bg: rgba(9, 12, 18, 0.86);
 }
 
 [data-vs-gallery] {
-  background: radial-gradient(circle at top right, #fdf9f2, var(--vs-bg));
-  border: 1px solid var(--vs-border);
-  border-radius: 16px;
+  background: transparent;
+  border: 0;
   color: var(--vs-text);
   font-family: "Avenir Next", "Segoe UI", sans-serif;
-  padding: 18px;
+  padding: 0;
 }
 
 .vs-gallery-shell {
   display: grid;
-  gap: 30px;
+  gap: 56px;
 }
 
 .vs-status {
   color: var(--vs-muted);
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 
 .vs-year {
   display: grid;
-  gap: 14px;
+  gap: 18px;
 }
 
 .vs-year-title {
-  border-bottom: 2px solid var(--vs-border);
-  font-size: 1.35rem;
+  font-size: clamp(2rem, 3.7vw, 3.4rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
   margin: 0;
-  padding-bottom: 8px;
+  text-align: center;
 }
 
 .vs-rail {
   align-items: center;
   display: grid;
-  gap: 8px;
+  gap: 12px;
   grid-template-columns: auto 1fr auto;
 }
 
 .vs-rail-button {
-  background: var(--vs-panel);
-  border: 1px solid var(--vs-border);
-  border-radius: 10px;
-  color: var(--vs-text);
+  align-self: center;
+  background: var(--vs-pill-bg);
+  border: 1px solid #b8cdf5;
+  border-radius: 999px;
+  color: #2064d8;
   cursor: pointer;
-  font-size: 1rem;
-  min-height: 108px;
-  min-width: 38px;
+  font-size: 2rem;
+  height: 56px;
+  line-height: 1;
+  width: 56px;
+}
+
+.vs-rail-button:hover {
+  background: var(--vs-pill-bg-hover);
+}
+
+.vs-rail-button:disabled {
+  cursor: default;
+  opacity: 0.45;
 }
 
 .vs-rail-track {
   display: flex;
-  gap: 10px;
+  gap: 18px;
   overflow-x: auto;
+  padding-bottom: 6px;
   scroll-behavior: smooth;
-  scroll-snap-type: x mandatory;
   scrollbar-width: none;
+  scroll-snap-type: x proximity;
 }
 
 .vs-rail-track::-webkit-scrollbar {
@@ -71,83 +83,101 @@
 }
 
 .vs-rail-item {
-  background: var(--vs-panel);
-  border: 1px solid var(--vs-border);
-  border-radius: 12px;
+  background: var(--vs-card-bg);
+  border: 1px solid var(--vs-line);
+  border-radius: 18px;
+  color: var(--vs-text);
   cursor: pointer;
-  flex: 0 0 260px;
-  padding: 6px;
+  flex: 0 0 clamp(250px, 22vw, 380px);
+  padding: 14px;
   scroll-snap-align: start;
   text-align: left;
 }
 
 .vs-rail-thumb {
-  border-radius: 8px;
+  border-radius: 14px;
   display: block;
-  height: 145px;
+  height: clamp(150px, 12vw, 230px);
   object-fit: cover;
   width: 100%;
-}
-
-.vs-rail-meta {
-  margin-top: 8px;
 }
 
 .vs-rail-label {
-  display: -webkit-box;
-  font-size: 1rem;
+  font-size: clamp(1.05rem, 1.25vw, 1.7rem);
   font-weight: 600;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  line-height: 1.25;
+  margin-top: 12px;
 }
 
-.vs-rail-count {
-  color: var(--vs-muted);
-  font-size: 0.9rem;
-  margin-top: 2px;
+.vs-rail.is-static {
+  grid-template-columns: 1fr;
 }
 
-.vs-album-grid {
+.vs-rail.is-static .vs-rail-button {
+  display: none;
+}
+
+.vs-album-view {
   display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 260px));
-  justify-content: start;
+  gap: 22px;
 }
 
-.vs-album-card {
-  background: var(--vs-panel);
-  border: 1px solid var(--vs-border);
-  border-radius: 12px;
-  box-shadow: var(--vs-shadow);
+.vs-album-title {
+  font-size: clamp(1.8rem, 2.6vw, 3rem);
+  margin: 0;
+}
+
+.vs-photo-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.vs-photo-item {
+  background: transparent;
+  border: 0;
   cursor: pointer;
-  padding: 8px;
-  text-align: left;
+  padding: 0;
 }
 
-.vs-album-cover {
-  border-radius: 8px;
+.vs-photo-thumb {
+  aspect-ratio: 4 / 3;
+  border-radius: 14px;
   display: block;
-  height: 130px;
+  height: auto;
   object-fit: cover;
   width: 100%;
 }
 
-.vs-album-name {
-  font-size: 0.92rem;
-  font-weight: 600;
+.vs-album-nav {
+  display: flex;
+  justify-content: space-between;
   margin-top: 8px;
 }
 
-.vs-album-count {
-  color: var(--vs-muted);
-  font-size: 0.8rem;
+.vs-pill-button {
+  background: var(--vs-pill-bg);
+  border: 1px solid #b8cdf5;
+  border-radius: 18px;
+  color: var(--vs-text);
+  cursor: pointer;
+  font-size: clamp(1rem, 1.25vw, 1.7rem);
+  font-weight: 600;
+  padding: 14px 24px;
+}
+
+.vs-pill-button:hover {
+  background: var(--vs-pill-bg-hover);
+}
+
+.vs-pill-button.is-hidden {
+  pointer-events: none;
+  visibility: hidden;
 }
 
 .vs-lightbox {
   align-items: center;
-  background: rgba(9, 12, 18, 0.82);
+  background: var(--vs-lightbox-bg);
   display: flex;
   inset: 0;
   justify-content: center;
@@ -162,10 +192,10 @@
 
 .vs-lightbox-panel {
   background: #0f1116;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 14px;
   color: #f4f6fb;
-  max-width: min(1100px, 96vw);
+  max-width: min(1200px, 96vw);
   padding: 12px;
   width: 100%;
 }
@@ -177,7 +207,7 @@
   color: #fff;
   cursor: pointer;
   float: right;
-  padding: 6px 10px;
+  padding: 7px 11px;
 }
 
 .vs-lightbox-media {
@@ -204,7 +234,7 @@
   color: #fff;
   cursor: pointer;
   min-height: 48px;
-  min-width: 56px;
+  min-width: 70px;
 }
 
 .vs-lightbox-meta {
@@ -228,18 +258,9 @@
   overflow: hidden;
 }
 
-.vs-rail.is-static {
-  grid-template-columns: 1fr;
-}
-
-.vs-rail.is-static .vs-rail-button {
-  display: none;
-}
-
-@media (max-width: 760px) {
-  [data-vs-gallery] {
-    border-radius: 10px;
-    padding: 12px;
+@media (max-width: 900px) {
+  .vs-gallery-shell {
+    gap: 40px;
   }
 
   .vs-rail {
@@ -250,16 +271,30 @@
     display: none;
   }
 
+  .vs-rail-item {
+    flex-basis: 270px;
+  }
+
+  .vs-photo-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+
   .vs-lightbox-media {
     grid-template-columns: 1fr;
   }
 
   .vs-lightbox-nav {
     min-height: 40px;
-    min-width: 100px;
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 640px) {
+  .vs-album-nav {
+    gap: 10px;
   }
 
-  .vs-album-grid {
-    grid-template-columns: 1fr;
+  .vs-pill-button {
+    padding: 12px 16px;
   }
 }
