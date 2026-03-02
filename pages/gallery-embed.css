@@ -544,6 +544,31 @@
     padding: 20px;
   }
 
+  .vs-lightbox {
+    padding: 10px;
+  }
+
+  .vs-lightbox-panel {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    height: calc(100dvh - 20px);
+    max-height: calc(100dvh - 20px);
+  }
+
+  .vs-lightbox-media {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .vs-lightbox-track {
+    height: 100%;
+  }
+
+  .vs-lightbox-image {
+    height: 100%;
+    max-height: none;
+  }
+
   .vs-search-wrap {
     max-width: none;
   }
