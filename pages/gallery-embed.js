@@ -625,6 +625,7 @@
     function render() {
       clearView();
       const showSearch = viewState.view === "years";
+      header.hidden = !showSearch;
       searchWrap.hidden = !showSearch;
       if (!showSearch) hideSearchResults();
 
