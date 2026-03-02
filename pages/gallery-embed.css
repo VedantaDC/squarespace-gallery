@@ -525,9 +525,10 @@
   }
 
   .vs-year-header {
-    align-items: flex-start;
+    align-items: center;
     flex-direction: column;
     gap: 2px;
+    text-align: center;
   }
 
   .vs-album-view {
