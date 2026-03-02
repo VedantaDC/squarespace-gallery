@@ -22,7 +22,7 @@
   border: 0;
   color: var(--vs-text);
   font-family: "Sora", "Avenir Next", "Trebuchet MS", sans-serif;
-  padding: clamp(20px, 3vw, 40px);
+  padding: clamp(24px, 3.4vw, 48px);
   touch-action: manipulation;
 }
 
@@ -37,6 +37,10 @@
   gap: 8px;
   justify-items: center;
   text-align: center;
+}
+
+.vs-topbar[hidden] {
+  display: none !important;
 }
 
 .vs-topbar-title {
@@ -155,6 +159,31 @@
 .vs-year {
   display: grid;
   gap: 14px;
+  position: relative;
+}
+
+.vs-year.is-sparse {
+  background:
+    radial-gradient(540px 180px at 10% 0%, rgba(17, 78, 112, 0.12), transparent 62%),
+    linear-gradient(170deg, rgba(249, 252, 255, 0.78), rgba(237, 243, 249, 0.68));
+  border: 1px solid rgba(145, 165, 187, 0.46);
+  border-radius: 20px;
+  padding: clamp(12px, 1.8vw, 18px);
+}
+
+.vs-year.is-sparse::after {
+  background: linear-gradient(90deg, rgba(17, 78, 112, 0), rgba(17, 78, 112, 0.25), rgba(17, 78, 112, 0));
+  border-radius: 999px;
+  bottom: 10px;
+  content: "";
+  height: 2px;
+  left: 16px;
+  position: absolute;
+  right: 16px;
+}
+
+.vs-year.is-sparse .vs-year-title {
+  color: var(--vs-accent-strong);
 }
 
 .vs-year-header {
@@ -523,7 +552,7 @@
 
 @media (max-width: 680px) {
   [data-vs-gallery] {
-    padding: 16px;
+    padding: 20px;
   }
 
   .vs-search-wrap {
