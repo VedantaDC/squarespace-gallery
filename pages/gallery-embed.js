@@ -75,10 +75,10 @@
     closeButton.setAttribute("aria-label", "Close viewer");
 
     const mediaWrap = el("div", "vs-lightbox-media");
-    const prevButton = el("button", "vs-lightbox-nav", "←");
+    const prevButton = el("button", "vs-lightbox-nav", "⟵");
     prevButton.type = "button";
     prevButton.setAttribute("aria-label", "Previous photo");
-    const nextButton = el("button", "vs-lightbox-nav", "→");
+    const nextButton = el("button", "vs-lightbox-nav", "⟶");
     nextButton.type = "button";
     nextButton.setAttribute("aria-label", "Next photo");
     const navRow = el("div", "vs-lightbox-nav-row");
@@ -184,6 +184,11 @@
     nextButton.addEventListener("click", () => move(1));
     mediaWrap.addEventListener("touchstart", onTouchStart, { passive: true });
     mediaWrap.addEventListener("touchend", onTouchEnd, { passive: true });
+    const blockDoubleTap = (event) => event.preventDefault();
+    prevButton.addEventListener("dblclick", blockDoubleTap);
+    nextButton.addEventListener("dblclick", blockDoubleTap);
+    closeButton.addEventListener("dblclick", blockDoubleTap);
+    overlay.addEventListener("dblclick", blockDoubleTap);
     overlay.addEventListener("click", (event) => {
       if (event.target === overlay) close();
     });
@@ -442,7 +447,7 @@
       (sum, y) => sum + y.albums.reduce((inner, a) => inner + a.images.length, 0),
       0,
     );
-    stats.textContent = `${years.length} sections • ${totalAlbums} albums • ${totalImages} photos`;
+    stats.textContent = `${totalAlbums} albums • ${totalImages} photos`;
 
     header.appendChild(heroTitle);
     header.appendChild(stats);

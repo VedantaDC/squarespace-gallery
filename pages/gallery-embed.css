@@ -1,27 +1,29 @@
 :root {
-  --vs-text: #0f2b3b;
-  --vs-muted: #4f6b7a;
-  --vs-line: #c9d8dd;
-  --vs-soft-line: #dce8ed;
-  --vs-card-bg: #ffffff;
-  --vs-panel-bg: #f6fbfd;
-  --vs-pill-bg: #e6f3f8;
-  --vs-pill-bg-hover: #d5ecf5;
-  --vs-accent: #1d728e;
-  --vs-accent-strong: #0f5870;
-  --vs-shadow: 0 20px 45px rgba(15, 43, 59, 0.1);
-  --vs-lightbox-bg: rgba(8, 11, 16, 0.88);
+  --vs-text: #09163b;
+  --vs-muted: #4b5f77;
+  --vs-line: #b4c0cd;
+  --vs-soft-line: #d0d5da;
+  --vs-card-bg: #f9fbfc;
+  --vs-panel-bg: #edf1f5;
+  --vs-pill-bg: #dce4ed;
+  --vs-pill-bg-hover: #cdd8e5;
+  --vs-accent: #114e70;
+  --vs-accent-strong: #09163b;
+  --vs-warm: #c06435;
+  --vs-shadow: 0 16px 34px rgba(9, 22, 59, 0.1);
+  --vs-lightbox-bg: rgba(9, 22, 59, 0.6);
 }
 
 [data-vs-gallery] {
   background:
-    radial-gradient(1100px 540px at 6% -10%, rgba(155, 213, 231, 0.55), transparent 60%),
-    radial-gradient(800px 460px at 95% 0%, rgba(183, 223, 202, 0.45), transparent 58%),
-    linear-gradient(180deg, #f4f8f9 0%, #f8f4ee 45%, #f4f8f9 100%);
+    radial-gradient(920px 420px at 8% -12%, rgba(176, 189, 204, 0.45), transparent 60%),
+    radial-gradient(780px 380px at 96% 2%, rgba(208, 213, 218, 0.42), transparent 58%),
+    linear-gradient(180deg, #eff2f5 0%, #f5f7fa 46%, #edf1f5 100%);
   border: 0;
   color: var(--vs-text);
   font-family: "Sora", "Avenir Next", "Trebuchet MS", sans-serif;
   padding: clamp(16px, 2.5vw, 34px);
+  touch-action: manipulation;
 }
 
 .vs-gallery-shell {
@@ -33,6 +35,8 @@
   align-items: start;
   display: grid;
   gap: 8px;
+  justify-items: center;
+  text-align: center;
 }
 
 .vs-topbar-title {
@@ -52,7 +56,13 @@
   gap: 8px;
   grid-template-columns: 1fr;
   max-width: 620px;
+  margin-inline: auto;
   position: relative;
+  width: min(100%, 620px);
+}
+
+.vs-search-wrap[hidden] {
+  display: none !important;
 }
 
 .vs-search-input {
@@ -68,7 +78,7 @@
 
 .vs-search-input:focus {
   border-color: var(--vs-accent);
-  box-shadow: 0 0 0 3px rgba(29, 114, 142, 0.18);
+  box-shadow: 0 0 0 3px rgba(17, 78, 112, 0.16);
   outline: none;
 }
 
@@ -123,7 +133,7 @@
 }
 
 .vs-search-result:hover {
-  background: #f3f8fa;
+  background: #eef3f8;
 }
 
 .vs-search-result-name {
@@ -205,7 +215,7 @@
 }
 
 .vs-rail-item:hover {
-  border-color: #9ec7d6;
+  border-color: #90a6bf;
   transform: translateY(-2px);
 }
 
@@ -221,7 +231,7 @@
 }
 
 .vs-rail-badge {
-  background: rgba(8, 11, 16, 0.75);
+  background: rgba(9, 22, 59, 0.82);
   border-radius: 999px;
   bottom: 10px;
   color: #f2f8fc;
@@ -329,7 +339,7 @@
   border-radius: 12px;
   display: block;
   object-fit: cover;
-  object-position: center top;
+  object-position: center center;
   width: 100%;
 }
 
@@ -345,7 +355,7 @@
 
 .vs-pill-button {
   background: var(--vs-pill-bg);
-  border: 1px solid #b6d7e3;
+  border: 1px solid #afbdcc;
   border-radius: 14px;
   color: var(--vs-text);
   cursor: pointer;
@@ -380,10 +390,10 @@
 }
 
 .vs-lightbox-panel {
-  background: #0e131a;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #f7f9fc;
+  border: 1px solid #afbdcc;
   border-radius: 14px;
-  color: #f4f6fb;
+  color: var(--vs-text);
   max-width: min(1240px, 96vw);
   padding: 14px;
   position: relative;
@@ -391,10 +401,10 @@
 }
 
 .vs-lightbox-close {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: #ffffff;
+  border: 1px solid #afbdcc;
   border-radius: 999px;
-  color: #fff;
+  color: var(--vs-accent-strong);
   cursor: pointer;
   font-size: 1.25rem;
   font-weight: 700;
@@ -403,6 +413,7 @@
   padding: 0;
   position: absolute;
   right: 12px;
+  touch-action: manipulation;
   top: 12px;
   width: 36px;
 }
@@ -429,17 +440,22 @@
 }
 
 .vs-lightbox-nav {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 999px;
-  color: #fff;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  color: var(--vs-accent-strong);
   cursor: pointer;
-  font-size: 1.35rem;
+  font-size: 2.1rem;
   font-weight: 700;
-  height: 42px;
+  height: 44px;
   line-height: 1;
-  min-width: 42px;
+  min-width: 54px;
   padding: 0;
+  touch-action: manipulation;
+}
+
+.vs-lightbox-nav:hover {
+  color: var(--vs-warm);
 }
 
 .vs-lightbox-meta {
@@ -455,7 +471,7 @@
 }
 
 .vs-lightbox-counter {
-  color: #d0d6e2;
+  color: #5a6e86;
   font-size: 0.84rem;
 }
 
