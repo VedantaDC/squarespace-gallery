@@ -70,14 +70,18 @@
     overlay.setAttribute("aria-label", "Photo viewer");
 
     const panel = el("div", "vs-lightbox-panel");
-    const closeButton = el("button", "vs-lightbox-close", "Close");
+    const closeButton = el("button", "vs-lightbox-close", "×");
     closeButton.type = "button";
+    closeButton.setAttribute("aria-label", "Close viewer");
 
     const mediaWrap = el("div", "vs-lightbox-media");
-    const prevButton = el("button", "vs-lightbox-nav", "Prev");
+    const prevButton = el("button", "vs-lightbox-nav", "←");
     prevButton.type = "button";
-    const nextButton = el("button", "vs-lightbox-nav", "Next");
+    prevButton.setAttribute("aria-label", "Previous photo");
+    const nextButton = el("button", "vs-lightbox-nav", "→");
     nextButton.type = "button";
+    nextButton.setAttribute("aria-label", "Next photo");
+    const navRow = el("div", "vs-lightbox-nav-row");
 
     const image = el("img", "vs-lightbox-image");
     image.alt = "";
@@ -86,20 +90,24 @@
     const title = el("div", "vs-lightbox-title");
     const counter = el("div", "vs-lightbox-counter");
 
-    mediaWrap.appendChild(prevButton);
     mediaWrap.appendChild(image);
-    mediaWrap.appendChild(nextButton);
+    navRow.appendChild(prevButton);
+    navRow.appendChild(nextButton);
     meta.appendChild(title);
     meta.appendChild(counter);
 
     panel.appendChild(closeButton);
     panel.appendChild(mediaWrap);
+    panel.appendChild(navRow);
     panel.appendChild(meta);
     overlay.appendChild(panel);
     root.appendChild(overlay);
 
     let currentAlbum = null;
     let index = 0;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let isTouchTracking = false;
 
     function notifyIndex() {
       if (!currentAlbum) return;
@@ -145,9 +153,37 @@
       render();
     }
 
+    function onTouchStart(event) {
+      const touch = event.changedTouches && event.changedTouches[0];
+      if (!touch) return;
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+      isTouchTracking = true;
+    }
+
+    function onTouchEnd(event) {
+      if (!isTouchTracking) return;
+      isTouchTracking = false;
+      const touch = event.changedTouches && event.changedTouches[0];
+      if (!touch) return;
+
+      const deltaX = touch.clientX - touchStartX;
+      const deltaY = touch.clientY - touchStartY;
+      const isHorizontal = Math.abs(deltaX) > Math.abs(deltaY) * 1.2;
+      if (!isHorizontal || Math.abs(deltaX) < 36) return;
+
+      if (deltaX > 0) {
+        move(-1);
+      } else {
+        move(1);
+      }
+    }
+
     closeButton.addEventListener("click", close);
     prevButton.addEventListener("click", () => move(-1));
     nextButton.addEventListener("click", () => move(1));
+    mediaWrap.addEventListener("touchstart", onTouchStart, { passive: true });
+    mediaWrap.addEventListener("touchend", onTouchEnd, { passive: true });
     overlay.addEventListener("click", (event) => {
       if (event.target === overlay) close();
     });
@@ -386,7 +422,7 @@
 
     const shell = el("div", "vs-gallery-shell");
     const header = el("section", "vs-topbar");
-    const heroTitle = el("h1", "vs-topbar-title", "Photo Gallery");
+    const heroTitle = el("h1", "vs-topbar-title", "VSNY Photo Gallery");
 
     const searchWrap = el("div", "vs-search-wrap");
     const searchInput = el("input", "vs-search-input");
@@ -394,15 +430,10 @@
     searchInput.placeholder = "Search albums or years...";
     searchInput.setAttribute("aria-label", "Search albums");
 
-    const clearBtn = el("button", "vs-search-clear", "×");
-    clearBtn.type = "button";
-    clearBtn.setAttribute("aria-label", "Clear search");
-
     const searchResults = el("div", "vs-search-results");
     searchResults.hidden = true;
 
     searchWrap.appendChild(searchInput);
-    searchWrap.appendChild(clearBtn);
     searchWrap.appendChild(searchResults);
 
     const stats = el("div", "vs-topbar-stats");
@@ -422,8 +453,6 @@
     const overlayHost = el("div", "vs-overlay-host");
     let viewState = { view: "years", yearIndex: -1, albumIndex: -1 };
     let cleanupFns = [];
-    let searchQuery = "";
-
     const searchIndex = buildSearchIndex(years);
 
     const lightbox = createLightbox(overlayHost, {
@@ -463,6 +492,9 @@
 
     function render() {
       clearView();
+      const showSearch = viewState.view === "years";
+      searchWrap.hidden = !showSearch;
+      if (!showSearch) hideSearchResults();
 
       if (viewState.view === "album") {
         const yearData = years[viewState.yearIndex];
@@ -604,21 +636,13 @@
     }
 
     searchInput.addEventListener("input", () => {
-      searchQuery = searchInput.value || "";
-      const trimmed = searchQuery.trim();
+      const trimmed = (searchInput.value || "").trim();
       if (!trimmed) {
         hideSearchResults();
         return;
       }
       const results = runSearch(searchIndex, trimmed);
       renderSearchResults(results);
-    });
-
-    clearBtn.addEventListener("click", () => {
-      searchQuery = "";
-      searchInput.value = "";
-      hideSearchResults();
-      searchInput.focus();
     });
 
     searchInput.addEventListener("keydown", (event) => {

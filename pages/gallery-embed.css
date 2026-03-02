@@ -50,7 +50,7 @@
 .vs-search-wrap {
   display: grid;
   gap: 8px;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr;
   max-width: 620px;
   position: relative;
 }
@@ -70,23 +70,6 @@
   border-color: var(--vs-accent);
   box-shadow: 0 0 0 3px rgba(29, 114, 142, 0.18);
   outline: none;
-}
-
-.vs-search-clear {
-  background: var(--vs-pill-bg);
-  border: 1px solid #b7d6e0;
-  border-radius: 12px;
-  color: var(--vs-text);
-  cursor: pointer;
-  font: inherit;
-  font-size: 1rem;
-  font-weight: 700;
-  min-height: 42px;
-  padding: 0 14px;
-}
-
-.vs-search-clear:hover {
-  background: var(--vs-pill-bg-hover);
 }
 
 .vs-content {
@@ -196,7 +179,8 @@
   padding-bottom: 6px;
   scroll-behavior: smooth;
   scrollbar-width: none;
-  scroll-snap-type: x proximity;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
 }
 
 .vs-rail-track::-webkit-scrollbar {
@@ -216,6 +200,7 @@
   overflow: hidden;
   padding: 0;
   scroll-snap-align: start;
+  scroll-snap-stop: always;
   text-align: left;
 }
 
@@ -344,6 +329,7 @@
   border-radius: 12px;
   display: block;
   object-fit: cover;
+  object-position: center top;
   width: 100%;
 }
 
@@ -399,45 +385,61 @@
   border-radius: 14px;
   color: #f4f6fb;
   max-width: min(1240px, 96vw);
-  padding: 12px;
+  padding: 14px;
+  position: relative;
   width: 100%;
 }
 
 .vs-lightbox-close {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 8px;
+  border-radius: 999px;
   color: #fff;
   cursor: pointer;
-  float: right;
-  padding: 7px 11px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  height: 36px;
+  line-height: 1;
+  padding: 0;
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  width: 36px;
 }
 
 .vs-lightbox-media {
-  align-items: center;
-  clear: both;
-  display: grid;
-  gap: 10px;
-  grid-template-columns: auto 1fr auto;
-  margin-top: 10px;
+  margin-top: 40px;
+  touch-action: pan-y;
 }
 
 .vs-lightbox-image {
   border-radius: 10px;
   display: block;
+  margin: 0 auto;
   max-height: 78vh;
   object-fit: contain;
   width: 100%;
 }
 
+.vs-lightbox-nav-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
 .vs-lightbox-nav {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
+  border-radius: 999px;
   color: #fff;
   cursor: pointer;
-  min-height: 42px;
-  min-width: 72px;
+  font-size: 1.35rem;
+  font-weight: 700;
+  height: 42px;
+  line-height: 1;
+  min-width: 42px;
+  padding: 0;
 }
 
 .vs-lightbox-meta {
@@ -486,9 +488,6 @@
     grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
   }
 
-  .vs-lightbox-media {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 680px) {
@@ -497,13 +496,7 @@
   }
 
   .vs-search-wrap {
-    grid-template-columns: 1fr;
     max-width: none;
-  }
-
-  .vs-search-clear {
-    min-height: 38px;
-    width: 78px;
   }
 
   .vs-rail-track {
