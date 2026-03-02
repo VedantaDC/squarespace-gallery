@@ -40,7 +40,16 @@ function numericYearOrNull(value) {
   return m ? Number(m[1]) : null;
 }
 
+function isFeaturedGroup(value) {
+  return value.trim().toLowerCase() === "featured";
+}
+
 function sortYearsDesc(a, b) {
+  const af = isFeaturedGroup(a.year);
+  const bf = isFeaturedGroup(b.year);
+  if (af && !bf) return -1;
+  if (!af && bf) return 1;
+
   const ay = numericYearOrNull(a.year);
   const by = numericYearOrNull(b.year);
   if (ay !== null && by !== null) return by - ay;
