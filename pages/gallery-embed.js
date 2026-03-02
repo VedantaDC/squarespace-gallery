@@ -332,9 +332,6 @@
 
   function createYearSection(yearData, openAlbum) {
     const section = el("section", "vs-year");
-    if (yearData.albums.length <= 2) {
-      section.classList.add("is-sparse");
-    }
 
     const headerRow = el("div", "vs-year-header");
     const title = el("h2", "vs-year-title", yearData.year);

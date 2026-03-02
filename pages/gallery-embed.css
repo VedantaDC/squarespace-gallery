@@ -157,33 +157,22 @@
 }
 
 .vs-year {
+  background:
+    radial-gradient(560px 220px at 10% 0%, rgba(17, 78, 112, 0.11), transparent 62%),
+    linear-gradient(170deg, rgba(251, 253, 255, 0.9), rgba(239, 244, 249, 0.82));
+  border: 1px solid rgba(151, 170, 190, 0.45);
+  border-radius: 20px;
+  box-shadow: 0 12px 26px rgba(9, 22, 59, 0.06);
   display: grid;
   gap: 14px;
-  position: relative;
+  padding: clamp(14px, 2vw, 20px);
 }
 
-.vs-year.is-sparse {
+.vs-years-view .vs-year:nth-child(even) {
   background:
-    radial-gradient(540px 180px at 10% 0%, rgba(17, 78, 112, 0.12), transparent 62%),
-    linear-gradient(170deg, rgba(249, 252, 255, 0.78), rgba(237, 243, 249, 0.68));
-  border: 1px solid rgba(145, 165, 187, 0.46);
-  border-radius: 20px;
-  padding: clamp(12px, 1.8vw, 18px);
-}
-
-.vs-year.is-sparse::after {
-  background: linear-gradient(90deg, rgba(17, 78, 112, 0), rgba(17, 78, 112, 0.25), rgba(17, 78, 112, 0));
-  border-radius: 999px;
-  bottom: 10px;
-  content: "";
-  height: 2px;
-  left: 16px;
-  position: absolute;
-  right: 16px;
-}
-
-.vs-year.is-sparse .vs-year-title {
-  color: var(--vs-accent-strong);
+    radial-gradient(560px 220px at 88% 0%, rgba(192, 100, 53, 0.1), transparent 64%),
+    linear-gradient(170deg, rgba(250, 251, 253, 0.92), rgba(240, 243, 247, 0.84));
+  border-color: rgba(165, 173, 183, 0.48);
 }
 
 .vs-year-header {
@@ -573,6 +562,11 @@
     flex-direction: column;
     gap: 2px;
     text-align: center;
+  }
+
+  .vs-year {
+    border-radius: 16px;
+    padding: 14px;
   }
 
   .vs-album-view {
