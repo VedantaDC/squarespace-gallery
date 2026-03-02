@@ -117,19 +117,18 @@ Security note:
 
 ---
 
-## 6) Featured Ordering Behavior
+## 6) Album Ordering Behavior
 
 - `Featured` is shown as the top carousel.
-- Featured albums follow folder-name order (same behavior as before chronological sorting was added).
-- Regular year folders keep normal year grouping.
+- All carousels (including `Featured`) are sorted newest to oldest by parsed album date.
+- The parser reads month/year from album folder names.
 
-Recommended naming if you want manual ordering control:
-- Prefix album names with numbers, for example:
-  - `01 - Kalpataru Day Celebration`
-  - `02 - Book Launch`
-  - `03 - Omega Institute`
+Recommended album naming format:
+- `Event Name - Mon YYYY`
 
-You can keep date-style names if preferred, but ordering will follow folder names.
+Examples:
+- `Kalpataru Day Celebration - Jan 2026`
+- `Book Launch - Apr 2025`
 
 ---
 
@@ -146,7 +145,7 @@ You can keep date-style names if preferred, but ordering will follow folder name
 
 ### B) Images appear but wrong order
 - Check folder/album naming format.
-- For `Featured`, rename folder names to control display order (for example `01 - ...`, `02 - ...`).
+- Use month/year in album names (example `Apr 2025`) so chronological sorting is reliable.
 
 ### C) `401 unauthorized` on rebuild
 - `REBUILD_TOKEN` is set on Worker side.

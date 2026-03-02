@@ -19,6 +19,33 @@ const CORS_HEADERS = {
   "access-control-allow-headers": "authorization,content-type",
 };
 
+const MONTH_TOKEN_TO_INDEX = new Map([
+  ["jan", 0],
+  ["january", 0],
+  ["feb", 1],
+  ["february", 1],
+  ["mar", 2],
+  ["march", 2],
+  ["apr", 3],
+  ["april", 3],
+  ["may", 4],
+  ["jun", 5],
+  ["june", 5],
+  ["jul", 6],
+  ["july", 6],
+  ["aug", 7],
+  ["august", 7],
+  ["sep", 8],
+  ["sept", 8],
+  ["september", 8],
+  ["oct", 9],
+  ["october", 9],
+  ["nov", 10],
+  ["november", 10],
+  ["dec", 11],
+  ["december", 11],
+]);
+
 function hasImageExtension(key) {
   const lower = key.toLowerCase();
   for (const ext of IMAGE_EXTENSIONS) {
@@ -59,6 +86,94 @@ function sortYearsDesc(a, b) {
 }
 
 function sortAlbumsByName(a, b) {
+  return a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+}
+
+function monthFromToken(token) {
+  return MONTH_TOKEN_TO_INDEX.has(token) ? MONTH_TOKEN_TO_INDEX.get(token) : null;
+}
+
+function yearFromToken(token) {
+  if (!/^(19|20)\d{2}$/.test(token)) return null;
+  return Number(token);
+}
+
+function monthFromNumericToken(token) {
+  if (!/^\d{1,2}$/.test(token)) return null;
+  const n = Number(token);
+  if (n < 1 || n > 12) return null;
+  return n - 1;
+}
+
+function tokenizeAlbumName(name) {
+  return (name || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+}
+
+function parseAlbumDateFromName(name, fallbackYear) {
+  const tokens = tokenizeAlbumName(name);
+  if (tokens.length === 0) return null;
+
+  const yearPositions = [];
+  for (let i = 0; i < tokens.length; i += 1) {
+    const y = yearFromToken(tokens[i]);
+    if (y !== null) yearPositions.push({ i, year: y });
+  }
+
+  for (const { i, year } of yearPositions) {
+    for (let d = 1; d <= 2; d += 1) {
+      const left = tokens[i - d];
+      const right = tokens[i + d];
+      const leftMonth = left ? monthFromToken(left) : null;
+      if (leftMonth !== null) return { year, month: leftMonth };
+      const rightMonth = right ? monthFromToken(right) : null;
+      if (rightMonth !== null) return { year, month: rightMonth };
+    }
+  }
+
+  for (const { i, year } of yearPositions) {
+    const left = tokens[i - 1];
+    const right = tokens[i + 1];
+    const leftMonth = left ? monthFromNumericToken(left) : null;
+    if (leftMonth !== null) return { year, month: leftMonth };
+    const rightMonth = right ? monthFromNumericToken(right) : null;
+    if (rightMonth !== null) return { year, month: rightMonth };
+  }
+
+  let fallbackMonth = null;
+  for (const token of tokens) {
+    const month = monthFromToken(token);
+    if (month !== null) {
+      fallbackMonth = month;
+      break;
+    }
+  }
+
+  if (fallbackYear !== null && fallbackMonth !== null) {
+    return { year: fallbackYear, month: fallbackMonth };
+  }
+  if (fallbackYear !== null) {
+    return { year: fallbackYear, month: -1 };
+  }
+
+  return null;
+}
+
+function albumChronoKey(albumName, yearLabel) {
+  const fallbackYear = numericYearOrNull(yearLabel);
+  const parsed = parseAlbumDateFromName(albumName, fallbackYear);
+  if (!parsed) return Number.NEGATIVE_INFINITY;
+  return parsed.year * 12 + parsed.month;
+}
+
+function sortAlbumsChronologicalDesc(a, b, yearLabel) {
+  const ak = albumChronoKey(a.name, yearLabel);
+  const bk = albumChronoKey(b.name, yearLabel);
+  if (ak !== bk) return bk - ak;
   return a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
 }
 
@@ -154,7 +269,7 @@ function buildIndexFromKeys(keys, publicBaseUrl) {
         images,
       });
     }
-    albums.sort(sortAlbumsByName);
+    albums.sort((a, b) => sortAlbumsChronologicalDesc(a, b, year));
     if (albums.length > 0) years.push({ year, albums });
   }
 
