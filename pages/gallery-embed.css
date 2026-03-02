@@ -26,58 +26,44 @@
 
 .vs-gallery-shell {
   display: grid;
-  gap: 34px;
+  gap: 24px;
 }
 
-.vs-hero {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(243, 249, 252, 0.9));
-  border: 1px solid var(--vs-soft-line);
-  border-radius: 24px;
-  box-shadow: var(--vs-shadow);
+.vs-topbar {
+  align-items: start;
   display: grid;
-  gap: 10px;
-  padding: clamp(18px, 2.8vw, 34px);
+  gap: 8px;
 }
 
-.vs-hero-eyebrow {
-  color: #2f6d83;
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
-}
-
-.vs-hero-title {
-  font-size: clamp(1.9rem, 4vw, 3.5rem);
-  letter-spacing: -0.02em;
-  line-height: 1.04;
+.vs-topbar-title {
+  font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+  letter-spacing: -0.01em;
   margin: 0;
 }
 
-.vs-hero-sub {
+.vs-topbar-stats {
   color: var(--vs-muted);
-  font-size: clamp(0.96rem, 1.3vw, 1.18rem);
-  line-height: 1.5;
-  margin: 0;
-  max-width: 920px;
+  font-size: 0.88rem;
+  font-weight: 500;
 }
 
 .vs-search-wrap {
   display: grid;
-  gap: 10px;
+  gap: 8px;
   grid-template-columns: 1fr auto;
-  margin-top: 6px;
+  max-width: 620px;
+  position: relative;
 }
 
 .vs-search-input {
   background: #fff;
   border: 1px solid var(--vs-line);
-  border-radius: 14px;
+  border-radius: 12px;
   color: var(--vs-text);
   font: inherit;
-  font-size: clamp(0.95rem, 1.2vw, 1.05rem);
-  min-height: 48px;
-  padding: 0 14px;
+  font-size: 0.95rem;
+  min-height: 42px;
+  padding: 0 12px;
 }
 
 .vs-search-input:focus {
@@ -89,23 +75,18 @@
 .vs-search-clear {
   background: var(--vs-pill-bg);
   border: 1px solid #b7d6e0;
-  border-radius: 14px;
+  border-radius: 12px;
   color: var(--vs-text);
   cursor: pointer;
   font: inherit;
-  font-weight: 600;
-  min-height: 48px;
-  padding: 0 16px;
+  font-size: 1rem;
+  font-weight: 700;
+  min-height: 42px;
+  padding: 0 14px;
 }
 
 .vs-search-clear:hover {
   background: var(--vs-pill-bg-hover);
-}
-
-.vs-hero-stats {
-  color: #336377;
-  font-size: 0.88rem;
-  font-weight: 600;
 }
 
 .vs-content {
@@ -117,76 +98,60 @@
   gap: 42px;
 }
 
-.vs-search-panel {
-  background: linear-gradient(150deg, rgba(255, 255, 255, 0.93), rgba(237, 247, 250, 0.88));
-  border: 1px solid var(--vs-soft-line);
-  border-radius: 22px;
-  box-shadow: 0 14px 38px rgba(15, 43, 59, 0.07);
-  display: grid;
-  gap: 10px;
-  padding: clamp(14px, 2vw, 24px);
-}
-
-.vs-search-title {
-  font-size: clamp(1.14rem, 1.6vw, 1.5rem);
-  margin: 0;
-}
-
-.vs-search-meta {
-  color: var(--vs-muted);
-  font-size: 0.92rem;
-}
-
-.vs-search-grid {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  margin-top: 4px;
-}
-
-.vs-search-card {
+.vs-search-empty {
   background: #fff;
   border: 1px solid var(--vs-line);
-  border-radius: 14px;
-  cursor: pointer;
+  border-radius: 10px;
+  color: var(--vs-muted);
+  font-size: 0.86rem;
+  padding: 10px 12px;
+}
+
+.vs-search-results {
+  background: #fff;
+  border: 1px solid var(--vs-line);
+  border-radius: 12px;
+  box-shadow: 0 14px 30px rgba(15, 43, 59, 0.16);
+  left: 0;
   overflow: hidden;
-  padding: 0;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 30;
+}
+
+.vs-search-list {
+  display: grid;
+}
+
+.vs-search-result {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #e4edf1;
+  cursor: pointer;
+  display: grid;
+  gap: 2px;
+  padding: 9px 12px;
   text-align: left;
 }
 
-.vs-search-card:hover {
-  border-color: #9ec7d6;
-  transform: translateY(-2px);
+.vs-search-result:last-child {
+  border-bottom: 0;
 }
 
-.vs-search-thumb {
-  aspect-ratio: 4 / 3;
-  display: block;
-  object-fit: cover;
-  width: 100%;
+.vs-search-result:hover {
+  background: #f3f8fa;
 }
 
-.vs-search-body {
-  display: grid;
-  gap: 4px;
-  padding: 10px;
-}
-
-.vs-search-name {
-  font-size: 0.94rem;
+.vs-search-result-name {
+  font-size: 0.9rem;
   font-weight: 700;
   line-height: 1.3;
 }
 
-.vs-search-sub {
+.vs-search-result-meta {
   color: var(--vs-muted);
-  font-size: 0.82rem;
-}
-
-.vs-search-empty {
-  color: var(--vs-muted);
-  font-size: 0.95rem;
-  padding: 8px 0 2px;
+  font-size: 0.8rem;
 }
 
 .vs-status {
@@ -498,7 +463,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .vs-rail-item,
-  .vs-search-card,
   .vs-photo-thumb {
     transition: none;
   }
@@ -522,10 +486,6 @@
     grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
   }
 
-  .vs-search-grid {
-    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  }
-
   .vs-lightbox-media {
     grid-template-columns: 1fr;
   }
@@ -536,13 +496,14 @@
     padding: 12px;
   }
 
-  .vs-hero {
-    border-radius: 18px;
-    padding: 14px;
-  }
-
   .vs-search-wrap {
     grid-template-columns: 1fr;
+    max-width: none;
+  }
+
+  .vs-search-clear {
+    min-height: 38px;
+    width: 78px;
   }
 
   .vs-rail-track {

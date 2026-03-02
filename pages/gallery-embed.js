@@ -334,51 +334,6 @@
     return view;
   }
 
-  function createSearchPanel(query, results, openAlbum) {
-    const panel = el("section", "vs-search-panel");
-    const title = el("h3", "vs-search-title", `Search results for “${query}”`);
-    const meta = el("div", "vs-search-meta", `${results.length} album${results.length === 1 ? "" : "s"} found`);
-
-    panel.appendChild(title);
-    panel.appendChild(meta);
-
-    const grid = el("div", "vs-search-grid");
-
-    for (const item of results) {
-      const card = el("button", "vs-search-card");
-      card.type = "button";
-      card.setAttribute("aria-label", `Open album ${item.album.name}`);
-
-      const image = el("img", "vs-search-thumb");
-      image.src = item.album.coverUrl;
-      image.alt = item.album.name;
-      image.loading = "lazy";
-
-      const body = el("div", "vs-search-body");
-      const name = el("div", "vs-search-name", item.album.name);
-      const sub = el("div", "vs-search-sub", `${item.year} • ${item.album.images.length} photos`);
-
-      body.appendChild(name);
-      body.appendChild(sub);
-      card.appendChild(image);
-      card.appendChild(body);
-      grid.appendChild(card);
-
-      card.addEventListener("click", () => {
-        openAlbum(item.year, item.album.name, { pushUrl: true, scroll: true });
-      });
-    }
-
-    panel.appendChild(grid);
-
-    if (results.length === 0) {
-      const empty = el("div", "vs-search-empty", "No matching albums. Try a different keyword.");
-      panel.appendChild(empty);
-    }
-
-    return panel;
-  }
-
   function buildSearchIndex(years) {
     const out = [];
     years.forEach((yearData, yearIndex) => {
@@ -430,15 +385,8 @@
     }
 
     const shell = el("div", "vs-gallery-shell");
-    const header = el("section", "vs-hero");
-
-    const eyebrow = el("div", "vs-hero-eyebrow", "Vedanta Society of New York");
-    const heroTitle = el("h1", "vs-hero-title", "Photo Gallery");
-    const heroSub = el(
-      "p",
-      "vs-hero-sub",
-      "Browse featured moments and archive albums by year. Search by event, speaker, or year.",
-    );
+    const header = el("section", "vs-topbar");
+    const heroTitle = el("h1", "vs-topbar-title", "Photo Gallery");
 
     const searchWrap = el("div", "vs-search-wrap");
     const searchInput = el("input", "vs-search-input");
@@ -446,13 +394,18 @@
     searchInput.placeholder = "Search albums or years...";
     searchInput.setAttribute("aria-label", "Search albums");
 
-    const clearBtn = el("button", "vs-search-clear", "Clear");
+    const clearBtn = el("button", "vs-search-clear", "×");
     clearBtn.type = "button";
+    clearBtn.setAttribute("aria-label", "Clear search");
+
+    const searchResults = el("div", "vs-search-results");
+    searchResults.hidden = true;
 
     searchWrap.appendChild(searchInput);
     searchWrap.appendChild(clearBtn);
+    searchWrap.appendChild(searchResults);
 
-    const stats = el("div", "vs-hero-stats");
+    const stats = el("div", "vs-topbar-stats");
     const totalAlbums = years.reduce((sum, y) => sum + y.albums.length, 0);
     const totalImages = years.reduce(
       (sum, y) => sum + y.albums.reduce((inner, a) => inner + a.images.length, 0),
@@ -460,11 +413,9 @@
     );
     stats.textContent = `${years.length} sections • ${totalAlbums} albums • ${totalImages} photos`;
 
-    header.appendChild(eyebrow);
     header.appendChild(heroTitle);
-    header.appendChild(heroSub);
-    header.appendChild(searchWrap);
     header.appendChild(stats);
+    header.appendChild(searchWrap);
 
     const content = el("div", "vs-content");
 
@@ -536,11 +487,6 @@
       }
 
       const yearsView = el("div", "vs-years-view");
-      const results = runSearch(searchIndex, searchQuery);
-
-      if (searchQuery.trim()) {
-        yearsView.appendChild(createSearchPanel(searchQuery.trim(), results, openAlbum));
-      }
 
       for (const yearData of years) {
         const { section, cleanup } = createYearSection(yearData, openAlbum);
@@ -549,6 +495,46 @@
       }
 
       content.appendChild(yearsView);
+    }
+
+    function hideSearchResults() {
+      searchResults.hidden = true;
+      searchResults.innerHTML = "";
+    }
+
+    function renderSearchResults(results) {
+      searchResults.innerHTML = "";
+
+      if (!results.length) {
+        const empty = el("div", "vs-search-empty", "No matching albums");
+        searchResults.appendChild(empty);
+        searchResults.hidden = false;
+        return;
+      }
+
+      const list = el("div", "vs-search-list");
+      const limited = results.slice(0, 12);
+
+      for (const item of limited) {
+        const row = el("button", "vs-search-result");
+        row.type = "button";
+        row.setAttribute("aria-label", `Open album ${item.album.name}`);
+
+        const name = el("div", "vs-search-result-name", item.album.name);
+        const meta = el("div", "vs-search-result-meta", `${item.year} • ${item.album.images.length} photos`);
+
+        row.appendChild(name);
+        row.appendChild(meta);
+        list.appendChild(row);
+
+        row.addEventListener("click", () => {
+          hideSearchResults();
+          openAlbum(item.year, item.album.name, { pushUrl: true, scroll: true });
+        });
+      }
+
+      searchResults.appendChild(list);
+      searchResults.hidden = false;
     }
 
     function openAlbum(year, albumName, options) {
@@ -560,6 +546,7 @@
 
       viewState = { view: "album", yearIndex, albumIndex };
       render();
+      hideSearchResults();
 
       const pushUrl = Boolean(options && options.pushUrl);
       const replaceUrl = Boolean(options && options.replaceUrl);
@@ -618,14 +605,38 @@
 
     searchInput.addEventListener("input", () => {
       searchQuery = searchInput.value || "";
-      if (viewState.view === "years") render();
+      const trimmed = searchQuery.trim();
+      if (!trimmed) {
+        hideSearchResults();
+        return;
+      }
+      const results = runSearch(searchIndex, trimmed);
+      renderSearchResults(results);
     });
 
     clearBtn.addEventListener("click", () => {
       searchQuery = "";
       searchInput.value = "";
-      if (viewState.view === "years") render();
+      hideSearchResults();
       searchInput.focus();
+    });
+
+    searchInput.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      const trimmed = searchInput.value.trim();
+      if (!trimmed) return;
+      const results = runSearch(searchIndex, trimmed);
+      if (results.length) {
+        event.preventDefault();
+        hideSearchResults();
+        openAlbum(results[0].year, results[0].album.name, { pushUrl: true, scroll: true });
+      }
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!searchWrap.contains(event.target)) {
+        hideSearchResults();
+      }
     });
 
     window.addEventListener("popstate", applyRouteFromUrl);
