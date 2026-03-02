@@ -83,14 +83,22 @@
     nextButton.setAttribute("aria-label", "Next photo");
     const navRow = el("div", "vs-lightbox-nav-row");
 
-    const image = el("img", "vs-lightbox-image");
-    image.alt = "";
+    const track = el("div", "vs-lightbox-track");
+    const prevImage = el("img", "vs-lightbox-image");
+    const activeImage = el("img", "vs-lightbox-image");
+    const nextImage = el("img", "vs-lightbox-image");
+    prevImage.alt = "";
+    activeImage.alt = "";
+    nextImage.alt = "";
 
     const meta = el("div", "vs-lightbox-meta");
     const title = el("div", "vs-lightbox-title");
     const counter = el("div", "vs-lightbox-counter");
 
-    mediaWrap.appendChild(image);
+    track.appendChild(prevImage);
+    track.appendChild(activeImage);
+    track.appendChild(nextImage);
+    mediaWrap.appendChild(track);
     navRow.appendChild(prevButton);
     navRow.appendChild(nextButton);
     meta.appendChild(title);
@@ -107,7 +115,41 @@
     let index = 0;
     let touchStartX = 0;
     let touchStartY = 0;
+    let touchDeltaX = 0;
     let isTouchTracking = false;
+    let isDragging = false;
+    let isAnimating = false;
+    let transitionFallbackId = 0;
+
+    const reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
+    const SWIPE_THRESHOLD_PX = 48;
+    const SWIPE_THRESHOLD_RATIO = 0.18;
+
+    function shouldAnimate() {
+      return !(reducedMotion && reducedMotion.matches);
+    }
+
+    function clearTransitionFallback() {
+      if (!transitionFallbackId) return;
+      window.clearTimeout(transitionFallbackId);
+      transitionFallbackId = 0;
+    }
+
+    function getWrappedIndex(rawIndex) {
+      if (!currentAlbum || !currentAlbum.images.length) return 0;
+      const len = currentAlbum.images.length;
+      return (rawIndex + len) % len;
+    }
+
+    function setTrackOffset(percent, animate) {
+      track.style.transition = animate && shouldAnimate() ? "transform 240ms cubic-bezier(0.22, 0.7, 0.2, 1)" : "none";
+      track.style.transform = `translate3d(${percent}%, 0, 0)`;
+    }
+
+    function updateImageNode(node, imageData, label) {
+      node.src = imageData.url;
+      node.alt = label;
+    }
 
     function notifyIndex() {
       if (!currentAlbum) return;
@@ -118,11 +160,15 @@
 
     function render() {
       if (!currentAlbum || !currentAlbum.images.length) return;
-      const active = currentAlbum.images[index];
-      image.src = active.url;
-      image.alt = `${currentAlbum.name} - ${active.name}`;
+      const prev = currentAlbum.images[getWrappedIndex(index - 1)];
+      const active = currentAlbum.images[getWrappedIndex(index)];
+      const next = currentAlbum.images[getWrappedIndex(index + 1)];
+      updateImageNode(prevImage, prev, `${currentAlbum.name} - ${prev.name || "Photo"}`);
+      updateImageNode(activeImage, active, `${currentAlbum.name} - ${active.name || "Photo"}`);
+      updateImageNode(nextImage, next, `${currentAlbum.name} - ${next.name || "Photo"}`);
       title.textContent = `${currentAlbum.year} / ${currentAlbum.name}`;
       counter.textContent = `${index + 1} of ${currentAlbum.images.length}`;
+      setTrackOffset(-100, false);
       notifyIndex();
     }
 
@@ -131,6 +177,11 @@
       if (!album.images.length) return;
       const safeIndex = Number.isInteger(startIndex) ? startIndex : 0;
       index = Math.max(0, Math.min(safeIndex, album.images.length - 1));
+      isAnimating = false;
+      isTouchTracking = false;
+      isDragging = false;
+      touchDeltaX = 0;
+      clearTransitionFallback();
       render();
       overlay.classList.remove("is-hidden");
       document.body.classList.add("vs-no-scroll");
@@ -140,50 +191,126 @@
       const closingAlbum = currentAlbum;
       overlay.classList.add("is-hidden");
       document.body.classList.remove("vs-no-scroll");
-      image.src = "";
+      clearTransitionFallback();
+      prevImage.src = "";
+      activeImage.src = "";
+      nextImage.src = "";
+      setTrackOffset(-100, false);
+      isAnimating = false;
+      isTouchTracking = false;
+      isDragging = false;
+      touchDeltaX = 0;
       if (hooks && typeof hooks.onClose === "function") {
         hooks.onClose(closingAlbum);
       }
       currentAlbum = null;
     }
 
-    function move(step) {
+    function completeSlide(step) {
       if (!currentAlbum || !currentAlbum.images.length) return;
-      index = (index + step + currentAlbum.images.length) % currentAlbum.images.length;
+      index = getWrappedIndex(index + step);
+      isAnimating = false;
       render();
     }
 
+    function move(step) {
+      if (!currentAlbum || !currentAlbum.images.length || !step || isAnimating) return;
+      if (currentAlbum.images.length === 1) {
+        setTrackOffset(-100, false);
+        return;
+      }
+
+      const direction = step > 0 ? 1 : -1;
+      if (!shouldAnimate()) {
+        completeSlide(direction);
+        return;
+      }
+
+      isAnimating = true;
+      const targetOffset = direction > 0 ? -200 : 0;
+      setTrackOffset(targetOffset, true);
+
+      const onTransitionDone = () => {
+        if (!isAnimating) return;
+        track.removeEventListener("transitionend", onTransitionDone);
+        clearTransitionFallback();
+        completeSlide(direction);
+      };
+
+      track.addEventListener("transitionend", onTransitionDone);
+      transitionFallbackId = window.setTimeout(onTransitionDone, 320);
+    }
+
+    function snapBack() {
+      setTrackOffset(-100, true);
+    }
+
     function onTouchStart(event) {
+      if (isAnimating) return;
       const touch = event.changedTouches && event.changedTouches[0];
       if (!touch) return;
       touchStartX = touch.clientX;
       touchStartY = touch.clientY;
+      touchDeltaX = 0;
       isTouchTracking = true;
+      isDragging = false;
+    }
+
+    function onTouchMove(event) {
+      if (!isTouchTracking || isAnimating) return;
+      const touch = event.touches && event.touches[0];
+      if (!touch) return;
+
+      const deltaX = touch.clientX - touchStartX;
+      const deltaY = touch.clientY - touchStartY;
+      const absX = Math.abs(deltaX);
+      const absY = Math.abs(deltaY);
+
+      if (!isDragging) {
+        if (absX < 6 && absY < 6) return;
+        if (absX <= absY * 1.1) {
+          isTouchTracking = false;
+          return;
+        }
+        isDragging = true;
+      }
+
+      event.preventDefault();
+      touchDeltaX = deltaX;
+      const width = Math.max(mediaWrap.clientWidth, 1);
+      const deltaPercent = (deltaX / width) * 100;
+      const offset = Math.max(-140, Math.min(-60, -100 + deltaPercent));
+      setTrackOffset(offset, false);
     }
 
     function onTouchEnd(event) {
       if (!isTouchTracking) return;
       isTouchTracking = false;
+      if (!isDragging) return;
+
       const touch = event.changedTouches && event.changedTouches[0];
-      if (!touch) return;
-
-      const deltaX = touch.clientX - touchStartX;
-      const deltaY = touch.clientY - touchStartY;
-      const isHorizontal = Math.abs(deltaX) > Math.abs(deltaY) * 1.2;
-      if (!isHorizontal || Math.abs(deltaX) < 36) return;
-
-      if (deltaX > 0) {
-        move(-1);
-      } else {
-        move(1);
+      if (touch) {
+        touchDeltaX = touch.clientX - touchStartX;
       }
+      const width = Math.max(mediaWrap.clientWidth, 1);
+      const threshold = Math.max(SWIPE_THRESHOLD_PX, width * SWIPE_THRESHOLD_RATIO);
+      const shouldSlide = Math.abs(touchDeltaX) >= threshold;
+      const direction = touchDeltaX < 0 ? 1 : -1;
+
+      if (shouldSlide) move(direction);
+      else snapBack();
+
+      isDragging = false;
+      touchDeltaX = 0;
     }
 
     closeButton.addEventListener("click", close);
     prevButton.addEventListener("click", () => move(-1));
     nextButton.addEventListener("click", () => move(1));
     mediaWrap.addEventListener("touchstart", onTouchStart, { passive: true });
+    mediaWrap.addEventListener("touchmove", onTouchMove, { passive: false });
     mediaWrap.addEventListener("touchend", onTouchEnd, { passive: true });
+    mediaWrap.addEventListener("touchcancel", onTouchEnd, { passive: true });
     const blockDoubleTap = (event) => event.preventDefault();
     prevButton.addEventListener("dblclick", blockDoubleTap);
     nextButton.addEventListener("dblclick", blockDoubleTap);

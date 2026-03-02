@@ -22,7 +22,7 @@
   border: 0;
   color: var(--vs-text);
   font-family: "Sora", "Avenir Next", "Trebuchet MS", sans-serif;
-  padding: clamp(16px, 2.5vw, 34px);
+  padding: clamp(20px, 3vw, 40px);
   touch-action: manipulation;
 }
 
@@ -419,16 +419,27 @@
 }
 
 .vs-lightbox-media {
+  overflow: hidden;
   margin-top: 40px;
+  position: relative;
   touch-action: pan-y;
+}
+
+.vs-lightbox-track {
+  display: flex;
+  transform: translate3d(-100%, 0, 0);
+  will-change: transform;
 }
 
 .vs-lightbox-image {
   border-radius: 10px;
   display: block;
-  margin: 0 auto;
+  flex: 0 0 100%;
+  margin: 0;
   max-height: 78vh;
   object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
   width: 100%;
 }
 
@@ -485,6 +496,10 @@
     transition: none;
   }
 
+  .vs-lightbox-track {
+    transition: none !important;
+  }
+
   .vs-rail-track {
     scroll-behavior: auto;
   }
@@ -508,7 +523,7 @@
 
 @media (max-width: 680px) {
   [data-vs-gallery] {
-    padding: 12px;
+    padding: 16px;
   }
 
   .vs-search-wrap {
